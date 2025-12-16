@@ -18,61 +18,88 @@
         body { background: var(--bg); color: var(--text); font-family: 'Outfit', sans-serif; margin: 0; padding-bottom: 50px; transition: 0.3s; }
         a { text-decoration: none; color: inherit; }
         
-        /* NAVBAR PREMIUM */
         .navbar { background: var(--card); border-bottom: 1px solid var(--border); padding: 15px 0; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
-        
         .nav-inner { display: flex; justify-content: space-between; align-items: center; gap: 20px; }
         
-        /* Logo */
         .logo { font-size: 1.6rem; font-weight: 800; letter-spacing: -1px; display: flex; align-items: center; gap: 5px; }
         .logo span { color: var(--gold); }
 
-        /* Search Bar (Responsive) */
-        .search-box { flex: 1; max-width: 400px; position: relative; }
+        /* --- PERBAIKAN SEARCH BAR --- */
+        /* Bungkus semua input dalam form flex ini */
+        .search-form-container {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            max-width: 600px;
+            gap: 15px;
+        }
+
+        .search-box { flex: 1; position: relative; }
         .search-box input { 
             width: 100%; background: var(--bg); border: 1px solid var(--border); 
-            padding: 10px 15px; border-radius: 25px; color: var(--text); 
-            outline: none; transition: 0.3s; padding-right: 40px;
+            padding: 10px 20px; border-radius: 25px; color: var(--text); 
+            outline: none; transition: 0.3s; 
+            /* Hapus padding right karena icon dihapus */
         }
         .search-box input:focus { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(255,193,7,0.2); }
-        .search-box button { 
-            position: absolute; right: 5px; top: 50%; transform: translateY(-50%); 
-            background: none; border: none; color: var(--text); cursor: pointer; 
-            padding: 8px; border-radius: 50%; 
-        }
 
-        /* Menu Kanan */
-        .nav-menu { display: flex; align-items: center; gap: 20px; }
+        /* --- PERBAIKAN DROPDOWN (Agar tidak ngilang) --- */
+        .dropdown { position: relative; cursor: pointer; font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; height: 100%; }
         
-        /* Dropdown Genre */
-        .dropdown { position: relative; cursor: pointer; font-weight: 600; font-size: 0.95rem; }
         .dropdown-menu {
-            display: none; position: absolute; top: 100%; right: 0; margin-top: 10px;
-            background: var(--card); border: 1px solid var(--border); border-radius: 8px;
-            min-width: 180px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); padding: 5px 0;
-            z-index: 999; max-height: 300px; overflow-y: auto;
+            display: none; 
+            position: absolute; 
+            top: 100%; /* Pas di bawah elemen */
+            right: 0; 
+            /* Ganti margin-top dengan padding-top transparan sebagai jembatan kursor */
+            padding-top: 15px; 
+            z-index: 999; 
         }
+
+        /* Container asli menu ada di dalam padding wrapper */
+        .dropdown-content-inner {
+            background: var(--card); 
+            border: 1px solid var(--border); 
+            border-radius: 8px;
+            min-width: 200px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3); 
+            padding: 10px;
+            max-height: 400px; 
+            overflow-y: auto;
+        }
+
         .dropdown:hover .dropdown-menu { display: block; }
-        .dropdown-menu a { display: block; padding: 10px 15px; font-size: 0.9rem; transition: 0.2s; }
-        .dropdown-menu a:hover { background: var(--hover); color: var(--gold); padding-left: 20px; }
+        
+        /* Style Checkbox Genre */
+        .genre-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            border-radius: 4px;
+        }
+        .genre-label:hover { background: var(--hover); color: var(--gold); }
+        .genre-label input[type="checkbox"] { accent-color: var(--gold); transform: scale(1.2); }
 
-        /* Theme Toggle */
-        .theme-btn { 
-            background: var(--border); border: none; color: var(--text); 
-            width: 35px; height: 35px; border-radius: 50%; cursor: pointer; 
-            display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+        .btn-apply {
+            width: 100%; margin-top: 10px; 
+            background: var(--gold); border: none; padding: 8px; 
+            border-radius: 4px; font-weight: bold; cursor: pointer;
         }
 
-        /* Tombol Login/Library */
+        .nav-menu { display: flex; align-items: center; gap: 20px; }
+        .theme-btn { background: var(--border); border: none; color: var(--text); width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; }
         .btn-auth { background: var(--gold); color: #000; padding: 8px 18px; border-radius: 20px; font-weight: 700; font-size: 0.9rem; }
-        .btn-auth:hover { opacity: 0.9; }
 
-        /* Mobile Adjustments */
         @media (max-width: 768px) {
             .nav-inner { flex-wrap: wrap; }
-            .search-box { order: 3; min-width: 100%; margin-top: 10px; }
-            .nav-menu span.label-desktop { display: none; } /* Sembunyikan teks menu di HP */
+            .search-form-container { order: 3; min-width: 100%; margin-top: 10px; flex-direction: column; align-items: stretch; }
+            .dropdown { justify-content: center; width: 100%; border: 1px solid var(--border); padding: 10px; border-radius: 8px; margin-bottom: 10px; }
+            .dropdown-menu { width: 100%; position: relative; padding-top: 5px; }
+            .nav-menu span.label-desktop { display: none; }
         }
     </style>
 </head>
@@ -81,27 +108,37 @@
         <div class="container nav-inner">
             <a href="/" class="logo">⚡ ZEN<span>NOVEL</span></a>
 
-            <form action="{% url 'search' %}" method="GET" class="search-box">
-                <input type="text" name="q" placeholder="Cari judul novel..." value="{{ query }}">
-                <button type="submit">🔍</button>
-            </form>
-
-            <div class="nav-menu">
+            <form action="{% url 'search' %}" method="GET" class="search-form-container" id="mainSearchForm">
+                
                 <div class="dropdown">
-                    <span>📂 <span class="label-desktop">Genre</span></span>
+                    <span>📂 <span class="label-desktop">Filter Genre</span> ▾</span>
                     <div class="dropdown-menu">
-                        <a href="{% url 'search' %}">Semua Genre</a>
-                        <div style="height:1px; background:var(--border); margin:5px 0;"></div>
-                        {% for g in all_genres %}
-                            <a href="{% url 'search' %}?genre={{ g }}">{{ g }}</a>
-                        {% endfor %}
+                        <div class="dropdown-content-inner">
+                            <div style="font-size: 0.8rem; color: gray; margin-bottom: 5px;">Pilih Genre:</div>
+                            
+                            {% for g in all_genres %}
+                            <label class="genre-label">
+                                <input type="checkbox" name="genre" value="{{ g }}" 
+                                    {% if g in selected_genres %}checked{% endif %}>
+                                {{ g }}
+                            </label>
+                            {% endfor %}
+                            
+                            <button type="submit" class="btn-apply">Apply Filter</button>
+                        </div>
                     </div>
                 </div>
 
+                <div class="search-box">
+                    <input type="text" name="q" placeholder="Ketik judul lalu tekan Enter..." value="{{ query }}">
+                    </div>
+            </form>
+
+            <div class="nav-menu">
                 <button onclick="toggleTheme()" class="theme-btn">🌗</button>
 
                 {% if user.is_authenticated %}
-                    <a href="{% url 'my_library' %}" class="dropdown">📚 <span class="label-desktop">Library</span></a>
+                    <a href="{% url 'my_library' %}" style="font-weight:bold; color:var(--gold);">Library</a>
                     <a href="{% url 'logout' %}" style="font-size:0.8rem; color:var(--text); opacity:0.7;">Logout</a>
                 {% else %}
                     <a href="{% url 'login' %}" class="btn-auth">Login</a>
@@ -125,4 +162,4 @@
         }
     </script>
 </body>
-</html>
+</html>     

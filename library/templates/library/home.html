@@ -32,7 +32,7 @@
 </style>
 
 {% if recent_reads %}
-    <div class="section-title">Lanjutkan Membaca</div>
+    <div class="section-title">Continue Reading</div>
     <div class="history-scroll">
         {% for chapter in recent_reads %}
         <a href="{% url 'read_chapter' chapter.id %}" class="history-card">
@@ -51,7 +51,7 @@
 {% endif %}
 
 <div class="section-title">
-    {% if is_search %}Hasil Pencarian{% else %}Update Terbaru{% endif %}
+    {% if is_search %}Hasil Pencarian{% else %}Latest Updates{% endif %}
 </div>
 
 <div class="grid-novel">

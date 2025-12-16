@@ -4,8 +4,11 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from .models import Novel, Chapter, Bookmark, NovelVote
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
 
-# --- Helper: Ambil semua genre untuk Navbar ---
+# --- Helper Context ---
 def get_common_context():
     return {
         'all_genres': Novel.objects.values_list('genre', flat=True).distinct().order_by('genre')
@@ -15,11 +18,10 @@ def get_common_context():
 def home(request):
     novels = Novel.objects.all().order_by('-uploaded_at')[:12]
     
-    # Ambil History dari Cookie
+    # History Logic
     recent_reads = []
     history_cookie = request.COOKIES.get('zn_history')
     if history_cookie:
-        import json
         try:
             history_data = json.loads(history_cookie)
             for nid, cid in history_data.items():
@@ -33,30 +35,40 @@ def home(request):
     context = {
         'novels': novels,
         'recent_reads': recent_reads[:6],
-        **get_common_context() # Masukkan genre ke context
+        **get_common_context()
     }
     return render(request, 'library/home.html', context)
 
+# --- VIEW SEARCH (PERBAIKAN LOGIKA) ---
 def search_view(request):
     query = request.GET.get('q', '')
-    genre_filter = request.GET.get('genre', '')
+    # AMBIL LIST GENRE (Multi-select)
+    selected_genres = request.GET.getlist('genre') 
     
     novels = Novel.objects.all()
     
+    # 1. Filter Text (Judul/Author)
     if query:
         novels = novels.filter(Q(title__icontains=query) | Q(author__icontains=query))
     
-    if genre_filter:
-        novels = novels.filter(genre__iexact=genre_filter)
+    # 2. Filter Genre (Multi-select)
+    # Logika: Tampilkan novel yang genrenya COCOK dengan SALAH SATU genre yang dipilih
+    if selected_genres:
+        genre_query = Q()
+        for g in selected_genres:
+            # Gunakan icontains jaga-jaga kalau di DB tertulis "Action, Fantasy"
+            genre_query |= Q(genre__icontains=g) 
+        novels = novels.filter(genre_query)
 
     context = {
         'novels': novels,
         'query': query,
-        'selected_genre': genre_filter,
+        'selected_genres': selected_genres, # Kirim balik ke template agar checkbox tetap tercentang
         'is_search': True,
         **get_common_context()
     }
     return render(request, 'library/home.html', context)
+
 
 # --- VIEW NOVEL & BACA ---
 def novel_detail(request, novel_id):
