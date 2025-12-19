@@ -128,3 +128,9 @@ CORS_ALLOW_ALL_ORIGINS = True
 #     "https://zennovel-frontend.netlify.app", # Contoh domain frontend Anda nanti
 #     "http://localhost:3000", # Untuk testing di laptop (Vite/React)
 # ]
+
+# Tambahkan ini di bagian paling bawah file settings.py
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,  # Menampilkan 10 novel per halaman (biar ringan)
+}
