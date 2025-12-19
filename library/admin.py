@@ -2,10 +2,26 @@ from django.contrib import admin
 from .models import Novel, Chapter, NovelVote
 from .utils import generate_chapters
 
+
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
+    prepopulated_fields = {'slug': ('name',)}
+
 class ChapterInline(admin.TabularInline):
     model = Chapter
     fields = ('title', 'order')
     extra = 0
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ('user', 'novel_title', 'text_snippet', 'created_at')
+    search_fields = ('text', 'user__username')
+
+    def novel_title(self, obj):
+        return obj.chapter.novel.title
+    
+    def text_snippet(self, obj):
+        return obj.text[:50] + "..." if len(obj.text) > 50 else obj.text
 
 @admin.register(Novel)
 class NovelAdmin(admin.ModelAdmin):
