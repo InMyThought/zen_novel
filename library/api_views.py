@@ -5,7 +5,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
-from .models import Novel, Chapter, Bookmark, UserSettings
+from .models import Novel, Chapter, Bookmark, UserSettings, Comment
 from .serializers import (
     NovelListSerializer, NovelDetailSerializer, ChapterSerializer, 
     UserSerializer, UserSettingsSerializer, CommentSerializer
