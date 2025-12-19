@@ -7,6 +7,11 @@ class Novel(models.Model):
     
     title = models.CharField(max_length=255)
     author = models.CharField(max_length=255, default="Unknown")
+    
+    # --- TAMBAHAN BARU DI SINI ---
+    synopsis = models.TextField(blank=True, null=True, help_text="Sinopsis cerita")
+    # -----------------------------
+
     genre = models.CharField(max_length=100, default="Action", help_text="Contoh: Fantasy, Romance")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Ongoing')
     cover = models.ImageField(upload_to='covers/', null=True, blank=True)
@@ -22,7 +27,6 @@ class Novel(models.Model):
 
     def __str__(self):
         return self.title
-
 class Chapter(models.Model):
     novel = models.ForeignKey(Novel, on_delete=models.CASCADE, related_name='chapters')
     title = models.CharField(max_length=255)
