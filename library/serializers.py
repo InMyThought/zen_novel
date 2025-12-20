@@ -26,6 +26,7 @@ class NovelListSerializer(serializers.ModelSerializer):
 
 # Serializer Berat (Khusus untuk Halaman Detail saat diklik)
 class NovelDetailSerializer(serializers.ModelSerializer):
+    is_bookmarked = serializers.SerializerMethodField() # Field custom untuk frontend
     chapters = ChapterSerializer(many=True, read_only=True)
     tags = TagSerializer(many=True, read_only=True)
     rating = serializers.FloatField(source='average_rating', read_only=True)
@@ -61,3 +62,11 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ['id', 'username', 'text', 'created_at']
+
+def get_is_bookmarked(self, obj):
+        # Ambil user dari context request
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            # Cek apakah user ini punya bookmark untuk novel ini
+            return Bookmark.objects.filter(user=request.user, novel=obj).exists()
+        return False
