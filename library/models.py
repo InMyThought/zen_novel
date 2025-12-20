@@ -12,8 +12,8 @@ class Tag(models.Model):
 class Novel(models.Model):
     STATUS_CHOICES = [('Ongoing', 'Ongoing'), ('Completed', 'Completed')]
     
-    title = models.CharField(max_length=255)
-    author = models.CharField(max_length=255, default="Unknown")
+    title = models.CharField(max_length=255, blank=True, default="New Novel") 
+    author = models.CharField(max_length=255, default="Unknown", blank=True)
     synopsis = models.TextField(blank=True, null=True, help_text="Ringkasan cerita")
     genre = models.CharField(max_length=100, default="Action", help_text="Contoh: Fantasy, Romance")
     tags = models.ManyToManyField(Tag, blank=True)
