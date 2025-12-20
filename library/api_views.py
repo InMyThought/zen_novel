@@ -29,12 +29,23 @@ def home_data(request):
 def novel_list(request):
     query = request.GET.get('q')
     genre = request.GET.get('genre')
+    tag = request.GET.get('tag')  # Tangkap parameter tag
+
     novels = Novel.objects.all().order_by('-uploaded_at')
 
+    # Filter Pencarian Judul/Author
     if query:
         novels = novels.filter(Q(title__icontains=query) | Q(author__icontains=query))
+    
+    # Filter Genre
     if genre:
         novels = novels.filter(genre__iexact=genre)
+
+    # Filter Tag (Baru Ditambahkan)
+    if tag:
+        # Filter berdasarkan Slug tag atau Nama tag
+        novels = novels.filter(tags__slug__iexact=tag) | novels.filter(tags__name__iexact=tag)
+        novels = novels.distinct() # Hindari duplikat jika match keduanya
 
     paginator = PageNumberPagination()
     paginator.page_size = 12
@@ -45,9 +56,14 @@ def novel_list(request):
 @api_view(['GET'])
 def novel_detail(request, pk):
     novel = get_object_or_404(Novel, pk=pk)
+    
+    # Update View Count (Opsional)
     novel.views += 1
     novel.save()
-    serializer = NovelDetailSerializer(novel)
+
+    # PENTING: Tambahkan context={'request': request}
+    serializer = NovelDetailSerializer(novel, context={'request': request}) 
+    
     return Response(serializer.data)
 
 @api_view(['GET'])
