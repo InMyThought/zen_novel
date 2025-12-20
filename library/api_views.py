@@ -1,5 +1,5 @@
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,AllowAny
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import status
@@ -190,3 +190,11 @@ def novels_by_tag(request, tag_slug):
     serializer = NovelListSerializer(result_page, many=True)
     
     return paginator.get_paginated_response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([AllowAny]) # Penting: Biar user belum login bisa lihat genre di Home
+def genre_list_api(request):
+    # Mengambil semua genre yang ada, membuang duplikat, dan mengurutkannya
+    genres = Novel.objects.values_list('genre', flat=True).distinct().order_by('genre')
+    # Hasilnya contoh: ['Action', 'Comedy', 'Romance']
+    return Response(list(genres))

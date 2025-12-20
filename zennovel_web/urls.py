@@ -33,6 +33,9 @@ urlpatterns = [
     path('api/novels/<int:pk>/rate/', json_views.rate_novel, name='api_rate_novel'),
     path('api/tag/<slug:tag_slug>/', json_views.novels_by_tag, name='api_novels_by_tag'),
 
+
+    path('api/genres/', json_views.genre_list_api, name='genre-list-api'),
+
     # --- HTML LAMA (Opsional) ---
     path('', html_views.home, name='home'),
     path('search/', html_views.search, name='search'),
