@@ -28,7 +28,7 @@ class NovelListSerializer(serializers.ModelSerializer):
         # Genre sudah masuk disini, jadi di Home Page aman untuk filter/display
         fields = [
             'id', 'title', 'cover', 'genre', 'status', 
-            'rating', 'chapter_count', 'uploaded_at'
+            'rating', 'chapter_count', 'uploaded_at','views'
         ]
 
 # KHUSUS DETAIL PAGE (Lengkap dengan Bookmark & Tags)
@@ -43,7 +43,7 @@ class NovelDetailSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'title', 'author', 'synopsis', 'tags', 'cover', 
             'genre', 'status', 'rating', 'uploaded_at', 
-            'chapters', 'is_bookmarked'
+            'chapters', 'is_bookmarked','views'
         ]
 
     # LOGIC BOOKMARK (Harus di dalam class, sejajar dengan Meta)
