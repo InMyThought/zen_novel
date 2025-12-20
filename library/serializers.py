@@ -33,7 +33,7 @@ class NovelDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Novel
-        fields = ['id', 'title', 'author', 'synopsis','tags', 'cover', 'genre', 'status', 'rating', 'uploaded_at', 'chapters']
+        fields = ['id', 'title', 'author', 'synopsis','tags', 'cover', 'genre', 'status', 'rating', 'uploaded_at', 'chapters','is_bookmarked']
 
 
 class UserSerializer(serializers.ModelSerializer):
