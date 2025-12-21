@@ -228,6 +228,19 @@ def get_bookmarks(request):
         # PERBAIKAN: Gunakan .order (bukan .chapter_number)
         chap_num = getattr(b.last_read_chapter, 'order', 0) if b.last_read_chapter else 0
         chap_idx = getattr(b.last_read_chapter, 'chapter_index', 0) if b.last_read_chapter else 0
+
+        latest_chap = b.novel.chapters.order_by('-order').first()
+        
+        latest_data = {
+            'id': None,
+            'index': 0,
+            'title': ''
+        }
+        
+        if latest_chap:
+            latest_data['id'] = latest_chap.id
+            latest_data['index'] = latest_chap.chapter_index
+            latest_data['title'] = latest_chap.title
         data.append({
             "id": b.novel.id,
             "title": b.novel.title,
@@ -236,6 +249,7 @@ def get_bookmarks(request):
             "current_chapter_title": b.last_read_chapter.title if b.last_read_chapter else "Belum dibaca",
             "current_chapter_number": chap_num, # SUDAH DIPERBAIKI
             "current_chapter_index": chap_idx,
+            "latest_chapter": latest_data,  
             "updated_at": b.updated_at
         })
         
