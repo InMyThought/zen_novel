@@ -130,6 +130,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5174",
     "http://localhost:5175", # Ganti dengan origin frontend lokal Anda
     "https://zennovel.netlify.app",
+    "https://zenovel.netlify.app",
 ]
 # Tambahkan ini di bagian REST_FRAMEWORK
 REST_FRAMEWORK = {
