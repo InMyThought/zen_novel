@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-from django.db.models import Q
+from django.db.models import Q,F
 from .models import Novel, Chapter, Bookmark, UserSettings, Comment,Tag, NovelVote
 from .serializers import (
     NovelListSerializer, NovelDetailSerializer, ChapterSerializer, 
@@ -55,11 +55,9 @@ def novel_list(request):
 
 @api_view(['GET'])
 def novel_detail(request, pk):
-    novel = get_object_or_404(Novel, pk=pk)
-    
     # Update View Count (Opsional)
-    novel.views += 1
-    novel.save()
+    Novel.objects.filter(pk=pk).update(views=F('views') + 1)
+    novel = get_object_or_404(Novel, pk=pk)
 
     # PENTING: Tambahkan context={'request': request}
     serializer = NovelDetailSerializer(novel, context={'request': request}) 

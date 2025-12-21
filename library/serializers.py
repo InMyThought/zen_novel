@@ -82,3 +82,18 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ['id', 'username', 'text', 'created_at']
+
+# library/serializers.py
+
+class ChapterDetailSerializer(serializers.ModelSerializer):
+    # Tambahkan field tambahan ini
+    novel_title = serializers.CharField(source='novel.title', read_only=True)
+    novel_cover = serializers.ImageField(source='novel.cover', read_only=True)
+    
+    class Meta:
+        model = Chapter
+        fields = [
+            'id', 'novel_id', 'title', 'content', 
+            'chapter_number', 'prev_chapter_id', 'next_chapter_id',
+            'novel_title', 'novel_cover' # <--- Masukkan disini
+        ]
