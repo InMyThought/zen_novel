@@ -1,8 +1,8 @@
 from django.db import models
 from django.db.models import Avg
 from django.contrib.auth.models import User
-from django.core.files import File # Tambahkan ini
-from PIL import Image              # Tambahkan ini
+from django.core.files import File 
+from PIL import Image              
 from io import BytesIO
 import os
 
@@ -25,45 +25,50 @@ class Novel(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Ongoing')
     cover = models.ImageField(upload_to='covers/', null=True, blank=True)
     
-    # Metadata Baru untuk Sorting
     views = models.IntegerField(default=0)
     rating_score = models.FloatField(default=0.0)
     
     epub_file = models.FileField(upload_to='epubs/', null=True, blank=True, help_text="Upload .epub/.txt di sini")
     uploaded_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True) 
+
     def save(self, *args, **kwargs):
-	if not self.alternative_title or self.alternative_title == "{title}":
+        # 1. Logika Auto Alternative Title
+        if not self.alternative_title or self.alternative_title == "{title}":
             self.alternative_title = self.title
-        # Jalankan kompresi jika ada file cover dan file tersebut baru/berubah
+        
+        # 2. Logika Kompresi Cover
         if self.cover:
-            self.compress_cover()
+            # Pastikan tidak kompres berulang jika sudah .webp
+            if not self.cover.name.lower().endswith('.webp'):
+                self.compress_cover()
+                
         super().save(*args, **kwargs)
 
     def compress_cover(self):
         """
         Fungsi untuk mengubah cover menjadi WebP dan kompresi kualitas
         """
-        img = Image.open(self.cover)
-        
-        # Jika gambar dalam mode RGBA (transparan), ubah ke RGB agar bisa disimpan WebP dengan baik
-        if img.mode in ("RGBA", "P"):
-            img = img.convert("RGB")
+        try:
+            img = Image.open(self.cover)
+            
+            # Ubah ke RGB jika transparan agar kompatibel dengan WebP
+            if img.mode in ("RGBA", "P"):
+                img = img.convert("RGB")
 
-        # Proses Kompresi
-        temp_handle = BytesIO()
-        # Quality 70-80 sudah sangat cukup untuk web, method 6 adalah kompresi terlambat (paling kecil)
-        img.save(temp_handle, format='WebP', quality=80, method=6)
-        temp_handle.seek(0)
+            temp_handle = BytesIO()
+            img.save(temp_handle, format='WebP', quality=80, method=6)
+            temp_handle.seek(0)
 
-        # Ganti nama file menjadi .webp
-        current_name = os.path.splitext(self.cover.name)[0]
-        new_name = f"{current_name}.webp"
+            current_name = os.path.splitext(self.cover.name)[0]
+            new_name = f"{current_name}.webp"
 
-        # Simpan kembali ke field cover tanpa memicu save() berulang (save=False)
-        self.cover.save(new_name, File(temp_handle), save=False)
+            # Simpan tanpa memicu save() berulang (save=False)
+            self.cover.save(new_name, File(temp_handle), save=False)
+        except Exception as e:
+            print(f"Gagal kompres: {e}")
+
     def average_rating(self):
-        # Hitung rata-rata dari tabel votes
         avg = self.votes.aggregate(Avg('score'))['score__avg']
         return round(avg, 1) if avg else 0.0
 
@@ -86,7 +91,7 @@ class Chapter(models.Model):
 
 class NovelVote(models.Model):
     novel = models.ForeignKey(Novel, on_delete=models.CASCADE, related_name='votes')
-    user = models.ForeignKey(User, on_delete=models.CASCADE) # Sekarang pakai User
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     score = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -96,18 +101,13 @@ class NovelVote(models.Model):
 class Bookmark(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookmarks')
     novel = models.ForeignKey(Novel, on_delete=models.CASCADE, related_name='bookmarked_by')
-    
-    # Progress Bacaan (HISTORY)
     last_read_chapter = models.ForeignKey(Chapter, on_delete=models.SET_NULL, null=True, blank=True)
-    updated_at = models.DateTimeField(auto_now=True)  # Waktu terakhir baca
-    
-    # Status Koleksi (LIBRARY)
-    # Default False, artinya kalau cuma baca doang ga otomatis masuk library visual
+    updated_at = models.DateTimeField(auto_now=True)
     is_in_library = models.BooleanField(default=False) 
 
     class Meta:
         ordering = ['-updated_at']
-        unique_together = ('user', 'novel') # Satu user satu entry per novel
+        unique_together = ('user', 'novel')
 
     def __str__(self):
         return f"{self.user.username} - {self.novel.title}"
@@ -120,8 +120,6 @@ class UserSettings(models.Model):
     
     def __str__(self):
         return f"Settings for {self.user.username}"
-
-# Tambahkan di library/models.py
 
 class Comment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

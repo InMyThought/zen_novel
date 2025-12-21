@@ -73,6 +73,40 @@ def novel_list(request):
     return paginator.get_paginated_response(serializer.data)
 
 @api_view(['GET'])
+def search_novels(request):
+    query = request.query_params.get('q', '')
+    genre = request.query_params.get('genre', '')
+    status = request.query_params.get('status', '')
+    sort = request.query_params.get('sort', 'latest')
+
+    # Mulai dengan semua novel
+    novels = Novel.objects.all()
+
+    # Filter berdasarkan Keyword (Title/Author)
+    if query:
+        novels = novels.filter(
+            Q(title__icontains=query) | Q(author__icontains=query)
+        )
+
+    # Filter berdasarkan Genre (Mencari di relasi many-to-many Genre)
+    if genre:
+        novels = novels.filter(genres__name__iexact=genre)
+
+    # Filter berdasarkan Status (Ongoing/Completed)
+    if status:
+        novels = novels.filter(status__iexact=status)
+
+    # Logika Sortir
+    if sort == 'latest':
+        novels = novels.order_by('-updated_at')
+    elif sort == 'popular':
+        # Kamu mungkin butuh field views/bookmark_count untuk ini
+        novels = novels.order_by('-id') 
+
+    serializer = NovelSerializer(novels, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
 def novel_detail(request, pk):
     Novel.objects.filter(pk=pk).update(views=F('views') + 1)
     novel = get_object_or_404(Novel, pk=pk)
