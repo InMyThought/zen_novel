@@ -38,7 +38,7 @@ class NovelDetailSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'title', 'author', 'synopsis', 'tags', 'cover', 
             'genre', 'status', 'rating', 'uploaded_at', 
-            'chapters', 'is_bookmarked','views'
+            'chapters', 'is_bookmarked','views','alternative_title'
         ]
 
     def get_is_bookmarked(self, obj):
