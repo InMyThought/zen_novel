@@ -129,6 +129,7 @@ CORS_ALLOW_ALL_ORIGINS = False # Matikan all origins
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5174",
     "http://localhost:5175", # Ganti dengan origin frontend lokal Anda
+    "http://localhost:5173", 
     "https://zennovel.netlify.app",
     "https://zenovel.netlify.app",
 ]

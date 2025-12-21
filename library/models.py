@@ -1,6 +1,10 @@
 from django.db import models
 from django.db.models import Avg
 from django.contrib.auth.models import User
+from django.core.files import File # Tambahkan ini
+from PIL import Image              # Tambahkan ini
+from io import BytesIO
+import os
 
 class Tag(models.Model):
     name = models.CharField(max_length=50)
@@ -28,7 +32,34 @@ class Novel(models.Model):
     epub_file = models.FileField(upload_to='epubs/', null=True, blank=True, help_text="Upload .epub/.txt di sini")
     uploaded_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True) 
+    def save(self, *args, **kwargs):
+        # Jalankan kompresi jika ada file cover dan file tersebut baru/berubah
+        if self.cover:
+            self.compress_cover()
+        super().save(*args, **kwargs)
 
+    def compress_cover(self):
+        """
+        Fungsi untuk mengubah cover menjadi WebP dan kompresi kualitas
+        """
+        img = Image.open(self.cover)
+        
+        # Jika gambar dalam mode RGBA (transparan), ubah ke RGB agar bisa disimpan WebP dengan baik
+        if img.mode in ("RGBA", "P"):
+            img = img.convert("RGB")
+
+        # Proses Kompresi
+        temp_handle = BytesIO()
+        # Quality 70-80 sudah sangat cukup untuk web, method 6 adalah kompresi terlambat (paling kecil)
+        img.save(temp_handle, format='WebP', quality=80, method=6)
+        temp_handle.seek(0)
+
+        # Ganti nama file menjadi .webp
+        current_name = os.path.splitext(self.cover.name)[0]
+        new_name = f"{current_name}.webp"
+
+        # Simpan kembali ke field cover tanpa memicu save() berulang (save=False)
+        self.cover.save(new_name, File(temp_handle), save=False)
     def average_rating(self):
         # Hitung rata-rata dari tabel votes
         avg = self.votes.aggregate(Avg('score'))['score__avg']
